@@ -40,14 +40,14 @@
     .brand span { color: var(--accent); }
     .search {
       background: white;
-      border-radius: 9px;
+      border-radius: 99px;
       display: flex;
       max-width: 610px;
       overflow: hidden;
       width: 100%;
     }
-    .search input { border: 0; min-width: 0; outline: 0; padding: 12px 15px; width: 100%; }
-    .search button { background: var(--accent); border: 0; color: var(--ink); font-weight: 700; padding: 0 18px; }
+    .search input { border: 0; min-width: 0; outline: 0; padding: 12px 18px; width: 100%; }
+    .search button { background: var(--accent); border: 0; color: var(--ink); font-weight: 700; padding: 0 20px; }
     
     .nav-links { display: flex; gap: 12px; align-items: center; }
     .nav-btn {
@@ -104,7 +104,8 @@
       border: 1px solid var(--line);
       border-radius: 24px;
       color: #52627b;
-      padding: 8px 15px;
+      padding: 8px 16px;
+      font-weight: 600;
     }
     .filter.active { background: var(--ink); border-color: var(--ink); color: white; }
     .products { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -290,7 +291,7 @@
       <div class="hero-copy">
         <div class="eyebrow">Good finds. Great prices.</div>
         <h1>Make room for things you love.</h1>
-        <p>Discover everyday favorites, hand-picked for you.</p>
+        <p>Discover everyday favorites and trending fashion, hand-picked for you.</p>
         <a class="shop-link" href="#products">Shop the collection</a>
       </div>
       <div class="hero-art" aria-hidden="true">🛍️</div>
@@ -514,11 +515,11 @@
         <div class="form-row">
           <div>
             <label>Category</label>
-            <input type="text" id="edit-prod-category" required>
+            <input type="text" id="edit-prod-category" placeholder="e.g. Fashion, Audio..." required>
           </div>
           <div>
             <label>Emoji Symbol</label>
-            <input type="text" id="edit-prod-emoji" placeholder="e.g. 🎧">
+            <input type="text" id="edit-prod-emoji" placeholder="e.g. 🧥">
           </div>
         </div>
 
@@ -566,7 +567,12 @@
     let products = [
       { id: 1, name: "Wireless Earbuds", category: "Audio", price: 2999, salePrice: 1999, rating: 4.5, emoji: "🎧", image: "", description: "High quality wireless sound with active noise cancellation.", color: "#e9e5ff" },
       { id: 2, name: "Smart Fitness Watch", category: "Wearables", price: 3499, salePrice: 2499, rating: 4.8, emoji: "⌚", image: "", description: "Track your health metrics, steps, and workouts seamlessly.", color: "#e5f8ff" },
-      { id: 3, name: "Minimalist Backpack", category: "Accessories", price: 1499, salePrice: null, rating: 4.2, emoji: "🎒", image: "", description: "Durable, water-resistant daily backpack for work or travel.", color: "#fff2e5" }
+      { id: 3, name: "Minimalist Backpack", category: "Accessories", price: 1499, salePrice: null, rating: 4.2, emoji: "🎒", image: "", description: "Durable, water-resistant daily backpack for work or travel.", color: "#fff2e5" },
+      
+      /* FASHION CATEGORY PRODUCTS */
+      { id: 4, name: "Classic Denim Jacket", category: "Fashion", price: 2499, salePrice: 1799, rating: 4.7, emoji: "🧥", image: "", description: "Stylish 100% cotton denim jacket for everyday casual wear.", color: "#e0f2fe" },
+      { id: 5, name: "Floral Summer Dress", category: "Fashion", price: 1999, salePrice: 1299, rating: 4.6, emoji: "👗", image: "", description: "Lightweight, breathable floral dress perfect for warm summer days.", color: "#fce7f3" },
+      { id: 6, name: "Polarized Sunglasses", category: "Fashion", price: 1199, salePrice: 799, rating: 4.4, emoji: "🕶️", image: "", description: "UV400 protected stylish polarized sunglasses for men & women.", color: "#fef3c7" }
     ];
 
     let activeCategory = "All";
