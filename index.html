@@ -812,7 +812,14 @@
     }
 
     function addToCart(id) {
-      cart.set(id, (cart.get(id) || 0) + 1);
+      const input = prompt("Enter quantity:", "1");
+      if (input === null) return; // Cancelled
+      const qty = parseInt(input);
+      if (isNaN(qty) || qty <= 0) {
+        alert("Please enter a valid positive quantity.");
+        return;
+      }
+      cart.set(id, (cart.get(id) || 0) + qty);
       updateCartUI();
       toggleCart();
     }
