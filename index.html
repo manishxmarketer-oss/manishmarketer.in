@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b4d">
+  <title>Manish Marketer | Unified App</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172b4d;
+      --muted: #68758a;
+      --accent: #ffb547;
+      --paper: #f5f7fa;
+      --line: #e7ebf0;
+      --sale: #e11d48;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 15px/1.5 "Segoe UI", Arial, sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; transition: transform 0.1s ease, background-color 0.2s ease; }
+    button:active { transform: scale(0.95); }
+    
+    /* Navigation Bar */
+    .topbar {
+      align-items: center;
+      background: #172b4d;
+      color: white;
+      display: flex;
+      gap: 24px;
+      justify-content: space-between;
+      padding: 14px max(5vw, 22px);
+    }
+    .brand { color: white; font-size: 21px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+    .brand span { color: var(--accent); }
+    .search {
+      background: white;
+      border-radius: 9px;
+      display: flex;
+      max-width: 610px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .search input { border: 0; min-width: 0; outline: 0; padding: 12px 15px; width: 100%; }
+    .search button { background: var(--accent); border: 0; color: var(--ink); font-weight: 700; padding: 0 18px; }
+    
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid #71809a;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      padding: 8px 12px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-btn.primary { background: var(--accent); color: var(--ink); border: 0; }
+    .cart-count {
+      background: var(--accent);
+      border-radius: 20px;
+      color: var(--ink);
+      display: inline-block;
+      margin-left: 6px;
+      min-width: 20px;
+      padding: 1px 5px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* Views Framework */
+    .view-section { display: none; margin: 0 auto; max-width: 1180px; padding: 28px 22px 60px; }
+    .view-section.active-view { display: block; }
+
+    /* Store Styles */
+    .hero {
+      align-items: center;
+      background: linear-gradient(115deg, #eaf0fa, #fff4e3);
+      border-radius: 18px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      min-height: 225px;
+      overflow: hidden;
+      padding: 34px clamp(22px, 6vw, 72px);
+    }
+    .hero-copy { max-width: 570px; }
+    .eyebrow { color: #5b6d89; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+    h1 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -1.5px; line-height: 1.1; margin: 10px 0; }
+    .hero p { color: #52627b; font-size: 16px; margin: 0 0 19px; }
+    .shop-link { background: var(--ink); border-radius: 8px; color: white; display: inline-block; font-weight: 700; padding: 11px 17px; text-decoration: none; }
+    .hero-art { font-size: clamp(80px, 13vw, 145px); padding: 0 20px; }
+    .section-heading { align-items: end; display: flex; justify-content: space-between; margin: 0 0 14px; }
+    h2 { font-size: 23px; letter-spacing: -.5px; margin: 0; }
+    .result-count { color: var(--muted); font-size: 13px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 22px; }
+    .filter {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      color: #52627b;
+      padding: 8px 15px;
+    }
+    .filter.active { background: var(--ink); border-color: var(--ink); color: white; }
+    .products { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { background: white; border: 1px solid var(--line); border-radius: 13px; overflow: hidden; position: relative; }
+    .sale-badge {
+      position: absolute; top: 12px; left: 12px; z-index: 2;
+      background: var(--sale); color: white; font-size: 11px; font-weight: 800;
+      padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
+    }
+    .product-art { align-items: center; display: flex; font-size: 70px; height: 175px; justify-content: center; overflow: hidden; position: relative; }
+    .product-image { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
+    .product-emoji { position: relative; }
+    .card-body { padding: 16px; }
+    .category { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .product-name { font-size: 17px; margin: 5px 0; }
+    .description { color: var(--muted); font-size: 13px; min-height: 39px; }
+    .rating { color: #986100; font-size: 13px; margin: 7px 0 12px; }
+    .buy-row { align-items: center; display: flex; justify-content: space-between; gap: 8px; }
+    .price-box { display: flex; flex-direction: column; }
+    .price { font-size: 18px; font-weight: 800; }
+    .price.on-sale { color: var(--sale); }
+    .original-price { color: var(--muted); text-decoration: line-through; font-size: 13px; font-weight: 600; }
+    .action-buttons { display: flex; gap: 6px; }
+    .add-button { background: var(--accent); border: 0; border-radius: 7px; color: var(--ink); font-weight: 700; padding: 8px 10px; font-size: 13px; }
+    .buy-now-button { background: #00bfa5; border: 0; border-radius: 7px; color: white; font-weight: 700; padding: 8px 10px; font-size: 13px; }
+    .empty { background: white; border-radius: 12px; color: var(--muted); grid-column: 1 / -1; padding: 35px; text-align: center; }
+
+    /* Panels & Containers */
+    .panel-container { background: white; border: 1px solid var(--line); border-radius: 12px; margin: 20px auto; max-width: 1100px; padding: 28px; }
+    .muted { color: #68758a; }
+
+    /* Admin Dash Components */
+    .metrics-grid { display: grid; gap: 15px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 25px; }
+    .metric-card { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+    .metric-title { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .metric-value { font-size: 24px; font-weight: 800; margin-top: 5px; color: var(--ink); }
+    
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; font-size: 14px; }
+    .admin-table th, .admin-table td { border-bottom: 1px solid var(--line); padding: 12px; vertical-align: middle; }
+    .admin-table th { background: #f8fafc; color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 12px; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #e2e8f0; color: #334155; }
+    .badge.completed { background: #dcfce7; color: #166534; }
+    
+    .btn-edit { background: #3b82f6; border: 0; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+    .btn-delete { background: #ef4444; border: 0; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; margin-left: 4px; }
+    .admin-thumb { width: 42px; height: 42px; border-radius: 6px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 22px; overflow: hidden; }
+    .admin-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Forms & Inputs */
+    label { color: #52627b; display: block; font-size: 13px; font-weight: 700; margin: 12px 0 5px; }
+    input, textarea, select { border: 1px solid #cbd3df; border-radius: 7px; color: var(--ink); font: inherit; padding: 10px; width: 100%; }
+    textarea { resize: vertical; }
+
+    /* CUSTOM UPI QUICK PAY STYLES (WITHOUT QR CODE) */
+    .upi-payment-card {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      text-align: center;
+      max-width: 360px;
+      margin: 15px auto;
+      border: 1px solid var(--line);
+    }
+    .upi-logo { font-size: 22px; font-weight: 800; color: #0073e6; margin-bottom: 2px; }
+    .upi-subtitle { color: #666; font-size: 13px; margin-bottom: 18px; }
+    .upi-amount-display { font-size: 34px; font-weight: 800; color: #333; margin-bottom: 18px; }
+    .upi-amount-display span { font-size: 20px; font-weight: 600; color: #888; }
+    .btn-upi {
+      display: inline-block;
+      background-color: #00bfa5;
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 191, 165, 0.3);
+      border: 0;
+    }
+    .btn-upi:hover { background-color: #009688; }
+    .upi-desktop-note {
+      font-size: 11px;
+      color: #ff5722;
+      margin-top: 12px;
+    }
+
+    .payment-subbox {
+      background: #f8fafc;
+      border: 1px dashed #cbd3df;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+      display: none;
+    }
+    .payment-subbox.active { display: block; }
+
+    /* Auth Toggle Switcher */
+    .auth-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .auth-tab {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      padding: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .auth-tab.active {
+      background: white;
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 100;
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: white; border-radius: 12px; max-width: 550px; width: 100%;
+      max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Cart Sidebar */
+    .cart-panel {
+      background: white; border: 1px solid var(--line); border-radius: 12px;
+      box-shadow: 0 15px 40px #172b4d22; display: none; padding: 18px;
+      position: fixed; right: 20px; top: 76px; width: min(360px, calc(100vw - 32px)); z-index: 10;
+    }
+    .cart-panel.open { display: block; }
+    .cart-heading { align-items: center; display: flex; justify-content: space-between; }
+    .close-cart { background: transparent; border: 0; color: var(--muted); font-size: 23px; cursor: pointer; }
+    .cart-items { max-height: 300px; overflow: auto; }
+    .cart-item { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 10px; padding: 12px 0; }
+    .cart-item-name { flex: 1; font-weight: 650; }
+    .cart-total { border-top: 1px solid var(--line); display: flex; font-weight: 800; justify-content: space-between; margin-top: 10px; padding-top: 14px; }
+    .checkout-btn { background: var(--ink); border: 0; border-radius: 7px; color: white; font-weight: 700; margin-top: 13px; padding: 11px; width: 100%; cursor: pointer; }
+
+    footer { border-top: 1px solid var(--line); color: var(--muted); padding: 20px; text-align: center; margin-top: 40px; }
+    @media (max-width: 760px) {
+      .topbar { flex-wrap: wrap; gap: 12px; }
+      .search { order: 3; max-width: none; }
+      .products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="topbar">
+    <a class="brand" href="#" onclick="switchView('store')">Manish <span>Marketer</span></a>
+    <form class="search" id="search-form" onsubmit="event.preventDefault();">
+      <input id="search-input" type="search" placeholder="Search products..." oninput="handleSearch(event)">
+      <button type="submit">Search</button>
+    </form>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="switchView('store')">Store</button>
+      <button class="nav-btn" id="nav-account-btn" style="display: none;" onclick="switchView('account')">Account</button>
+      <button class="nav-btn" id="nav-admin-btn" style="display: none;" onclick="switchView('admin')">Admin</button>
+      <button class="nav-btn" id="nav-login-btn" onclick="switchView('login')">Sign In</button>
+      <button class="nav-btn primary" id="auth-nav-btn" style="display: none;" onclick="handleLogout()">Sign Out</button>
+      <button class="nav-btn primary" id="cart-toggle" onclick="toggleCart()">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
+    </div>
+  </header>
+
+  <!-- VIEW 1: STORE -->
+  <section id="view-store" class="view-section active-view">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Good finds. Great prices.</div>
+        <h1>Make room for things you love.</h1>
+        <p>Discover everyday favorites, hand-picked for you.</p>
+        <a class="shop-link" href="#products">Shop the collection</a>
+      </div>
+      <div class="hero-art" aria-hidden="true">🛍️</div>
+    </div>
+    <div class="section-heading">
+      <h2>Popular picks</h2>
+      <span class="result-count" id="result-count"></span>
+    </div>
+    <nav class="filters" id="filters"></nav>
+    <div class="products" id="product-grid"></div>
+  </section>
+
+  <!-- VIEW 2: ACCOUNT -->
+  <section id="view-account" class="view-section">
+    <div class="panel-container">
+      <h1>Welcome to your account</h1>
+      <p>Signed in as <strong id="account-email">customer@example.com</strong></p>
+      <p class="muted">Manage your account preferences below.</p>
+      <a class="shop-link" href="#" onclick="switchView('store')">Continue shopping</a>
+    </div>
+  </section>
+
+  <!-- VIEW 3: ADMIN DASHBOARD -->
+  <section id="view-admin" class="view-section">
+    <div class="panel-container">
+      <h1>Store dashboard</h1>
+      <p class="muted">You are signed in to the Manish Marketer admin area.</p>
+      
+      <!-- Metrics Grid -->
+      <div style="margin-top: 25px;">
+        <h2>Sales overview</h2>
+        <div class="metrics-grid" style="margin-top: 15px;">
+          <div class="metric-card">
+            <div class="metric-title">Total Revenue</div>
+            <div class="metric-value" id="metric-revenue">₹0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Total Orders</div>
+            <div class="metric-value" id="metric-orders">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Average Order Value</div>
+            <div class="metric-value" id="metric-aov">₹0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Management Table -->
+      <section style="margin-top: 30px;">
+        <div class="section-heading">
+          <h2>Product Inventory Management</h2>
+          <button class="shop-link" style="padding: 6px 12px; font-size: 13px;" onclick="openAddProductModal()">+ Add New Product</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Regular Price</th>
+                <th>Sale Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Sales / Orders Table -->
+      <section style="margin-top: 40px; border-top: 1px solid var(--line); padding-top: 25px;">
+        <div class="section-heading">
+          <h2>Sales & Orders Tracking</h2>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items summary</th>
+                <th>Total</th>
+                <th>Payment Mode & Details</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-table">
+              <tr><td colspan="6" class="muted" style="text-align: center;">No orders recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- VIEW 4: LOGIN / SIGNUP -->
+  <section id="view-login" class="view-section">
+    <div class="panel-container" style="max-width: 430px;">
+      <h1 id="auth-heading">Sign In</h1>
+      <p class="muted" id="auth-subtext">Access your account or register a new one.</p>
+
+      <div class="auth-tabs" style="margin-top: 18px;">
+        <button class="auth-tab active" id="tab-signin" onclick="switchAuthMode('signin')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchAuthMode('register')">Register New Email</button>
+      </div>
+
+      <form id="login-form" onsubmit="handleAuthSubmit(event)">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required>
+        
+        <label id="password-label">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+        
+        <button class="checkout-btn" type="submit" id="auth-submit-btn">Sign In</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- VIEW 5: CHECKOUT PAGE -->
+  <section id="view-checkout" class="view-section">
+    <div class="panel-container" style="max-width: 600px;">
+      <h1>Checkout</h1>
+      <p class="muted">Please fill in your shipping and direct payment details below.</p>
+      
+      <div style="background: #eaf0fa; padding: 14px; border-radius: 8px; margin: 15px 0;">
+        <strong>Order Summary:</strong>
+        <div id="checkout-summary-text" style="margin-top: 6px; font-size: 14px;"></div>
+      </div>
+
+      <form onsubmit="handleCheckoutSubmit(event)">
+        <label>Full Name</label>
+        <input type="text" id="chk-name" placeholder="Enter your full name" required>
+        <label>Email Address</label>
+        <input type="email" id="chk-email" placeholder="you@example.com" required>
+        <label>Location / Delivery Address</label>
+        <textarea id="chk-location" placeholder="House/Flat no., Street, City, State" rows="3" required></textarea>
+        <div class="form-row">
+          <div>
+            <label>Pincode</label>
+            <input type="text" id="chk-pincode" placeholder="6-digit pincode" pattern="[0-9]{6}" required>
+          </div>
+          <div>
+            <label>Phone Number</label>
+            <input type="tel" id="chk-phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+          </div>
+        </div>
+
+        <label>Payment Option</label>
+        <select id="chk-payment" onchange="handlePaymentMethodChange(this)" required>
+          <option value="">Select payment method</option>
+          <option value="UPI">BHIM UPI Quick Pay (GPay / PhonePe / Paytm)</option>
+          <option value="Direct Bank Transfer">Direct Bank Transfer (Admin Bank Account)</option>
+          <option value="Credit/Debit Card">Credit / Debit Card</option>
+          <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+        </select>
+
+        <!-- Dynamic Integrated UPI Payment Gateway Card (QR Code Removed) -->
+        <div class="payment-subbox" id="admin-upi-container">
+          <div class="upi-payment-card">
+            <div class="upi-logo">BHIM UPI</div>
+            <div class="upi-subtitle">Instant Payment Gateway</div>
+            
+            <div class="upi-amount-display"><span>₹</span><span id="upi-display-amount">0.00</span></div>
+
+            <a id="dynamic-upi-link" href="#" class="btn-upi">
+              Pay via UPI App
+            </a>
+
+            <div class="upi-desktop-note">⚠️ Deep links only work on mobile devices with installed UPI apps (GPay, PhonePe, Paytm).</div>
+          </div>
+          <label style="margin: 12px 0 4px; font-size: 12px;">Enter 12-Digit UPI Ref / UTR Number after payment</label>
+          <input type="text" id="chk-upi-ref" placeholder="e.g. 432109876543">
+        </div>
+
+        <!-- Direct Admin Bank Account Transfer Box -->
+        <div class="payment-subbox" id="admin-bank-container">
+          <div style="font-weight: 700; color: #1e3a8a; margin-bottom: 6px;">🏦 Direct Bank Account Transfer (NEFT / IMPS)</div>
+          <div style="font-size: 13px; line-height: 1.6; background: white; padding: 10px; border-radius: 6px; border: 1px solid #cbd3df; margin-bottom: 10px;">
+            <div><strong>Account Name:</strong> Manish Marketer Store</div>
+            <div><strong>Account Number:</strong> <span style="font-family: monospace; font-size: 14px; font-weight: bold; color: #0f172a;">12340500001234</span></div>
+            <div><strong>IFSC Code:</strong> <span style="font-family: monospace; font-weight: bold; color: #0f172a;">HDFC0001234</span></div>
+            <div><strong>Bank Name:</strong> HDFC Bank, Commercial Branch</div>
+          </div>
+          <label style="margin: 0 0 4px; font-size: 12px;">Bank Transaction / UTR Ref Number</label>
+          <input type="text" id="chk-bank-ref" placeholder="e.g. UTR123456789">
+        </div>
+
+        <!-- Debit / Credit Card Box -->
+        <div class="payment-subbox" id="admin-card-container">
+          <div style="font-weight: 700; color: #1e3a8a; margin-bottom: 6px;">💳 Credit / Debit Card Payment</div>
+          <label style="margin: 0 0 4px; font-size: 12px;">Card Number</label>
+          <input type="text" id="chk-card-num" placeholder="4111 2222 3333 4444" maxlength="19">
+          <div class="form-row" style="margin-top: 8px;">
+            <div>
+              <label style="margin: 0 0 4px; font-size: 12px;">Expiry (MM/YY)</label>
+              <input type="text" id="chk-card-exp" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div>
+              <label style="margin: 0 0 4px; font-size: 12px;">CVV</label>
+              <input type="password" id="chk-card-cvv" placeholder="123" maxlength="4">
+            </div>
+          </div>
+        </div>
+
+        <button class="checkout-btn" type="submit" style="margin-top: 20px;">Place Order</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- EDIT / ADD PRODUCT MODAL -->
+  <div class="modal-backdrop" id="product-modal">
+    <div class="modal-box">
+      <h2 id="modal-title">Edit Product</h2>
+      <form id="product-form" onsubmit="handleSaveProduct(event)">
+        <input type="hidden" id="edit-prod-id">
+        
+        <label>Product Name</label>
+        <input type="text" id="edit-prod-name" required>
+
+        <div class="form-row">
+          <div>
+            <label>Category</label>
+            <input type="text" id="edit-prod-category" required>
+          </div>
+          <div>
+            <label>Emoji Symbol</label>
+            <input type="text" id="edit-prod-emoji" placeholder="e.g. 🎧">
+          </div>
+        </div>
+
+        <label>Image URL (Optional - overrides Emoji)</label>
+        <input type="url" id="edit-prod-image" placeholder="https://example.com/photo.jpg">
+
+        <div class="form-row">
+          <div>
+            <label>Regular Price (₹)</label>
+            <input type="number" id="edit-prod-price" min="0" step="1" required>
+          </div>
+          <div>
+            <label>Sale Price (₹ - Optional)</label>
+            <input type="number" id="edit-prod-sale-price" min="0" step="1" placeholder="Leave empty if none">
+          </div>
+        </div>
+
+        <label>Description</label>
+        <textarea id="edit-prod-description" rows="3"></textarea>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="submit" class="checkout-btn" style="margin-top:0;">Save Product</button>
+          <button type="button" class="nav-btn" style="color: var(--ink); border-color: #cbd3df;" onclick="closeProductModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cart Flyout Sidebar -->
+  <aside class="cart-panel" id="cart-panel">
+    <div class="cart-heading">
+      <h2>Your cart</h2>
+      <button class="close-cart" onclick="toggleCart()">×</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <p class="muted">Your cart is empty.</p>
+    </div>
+    <div class="cart-total"><span>Subtotal</span><span id="cart-total">₹0.00</span></div>
+    <button class="checkout-btn" onclick="goToCheckout()">Continue to checkout</button>
+  </aside>
+
+  <footer>© Manish Marketer · Consolidated Single-Page Application</footer>
+
+  <script>
+    let products = [
+      { id: 1, name: "Wireless Earbuds", category: "Audio", price: 2999, salePrice: 1999, rating: 4.5, emoji: "🎧", image: "", description: "High quality wireless sound with active noise cancellation.", color: "#e9e5ff" },
+      { id: 2, name: "Smart Fitness Watch", category: "Wearables", price: 3499, salePrice: 2499, rating: 4.8, emoji: "⌚", image: "", description: "Track your health metrics, steps, and workouts seamlessly.", color: "#e5f8ff" },
+      { id: 3, name: "Minimalist Backpack", category: "Accessories", price: 1499, salePrice: null, rating: 4.2, emoji: "🎒", image: "", description: "Durable, water-resistant daily backpack for work or travel.", color: "#fff2e5" }
+    ];
+
+    let activeCategory = "All";
+    let searchQuery = "";
+    let isLoggedIn = false;
+    let loggedInUserEmail = "";
+    let directBuyItem = null;
+    let activeCheckoutAmount = 0;
+    let authMode = "signin";
+    const cart = new Map();
+    const orders = [];
+
+    const ADMIN_UPI_ID = "manishmarketer@okaxis";
+    const ADMIN_PAYEE_NAME = "Manish Marketer";
+
+    const inr = new Intl.NumberFormat("en-IN", {style: "currency", currency: "INR", maximumFractionDigits: 0});
+
+    function getUserDB() {
+      return JSON.parse(localStorage.getItem('mm_registered_users') || '{}');
+    }
+
+    function saveUserDB(db) {
+      localStorage.setItem('mm_registered_users', JSON.stringify(db));
+    }
+
+    function getEffectivePrice(p) {
+      return (p.salePrice !== null && p.salePrice !== undefined && p.salePrice < p.price && p.salePrice > 0) 
+        ? p.salePrice 
+        : p.price;
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+      document.getElementById('view-' + viewName).classList.add('active-view');
+      
+      if (viewName === 'login') {
+        switchAuthMode('signin');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function switchAuthMode(mode) {
+      authMode = mode;
+      const tabSignIn = document.getElementById('tab-signin');
+      const tabRegister = document.getElementById('tab-register');
+      const heading = document.getElementById('auth-heading');
+      const subtext = document.getElementById('auth-subtext');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      if (mode === 'signin') {
+        tabSignIn.classList.add('active');
+        tabRegister.classList.remove('active');
+        heading.textContent = "Sign In";
+        subtext.textContent = "Log in using your registered email and password.";
+        submitBtn.textContent = "Sign In";
+      } else {
+        tabRegister.classList.add('active');
+        tabSignIn.classList.remove('active');
+        heading.textContent = "Register Account";
+        subtext.textContent = "Create a new permanent password for your email.";
+        submitBtn.textContent = "Register & Sign In";
+      }
+      document.getElementById('login-form').reset();
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+
+      const adminEmail = "manish.xmarketer@gmail.com";
+      const adminPass = "manish2010@?123";
+
+      if (email === adminEmail) {
+        if (password !== adminPass) {
+          alert("Incorrect admin password.");
+          return;
+        }
+        completeLogin(email, true);
+        return;
+      }
+
+      const userDB = getUserDB();
+
+      if (authMode === 'signin') {
+        if (!userDB[email]) {
+          alert("This email is not registered yet. Please switch to the 'Register New Email' tab.");
+          return;
+        }
+        if (userDB[email] !== password) {
+          alert("Incorrect password. The password for this email cannot be changed here.");
+          return;
+        }
+        completeLogin(email, false);
+      } else {
+        if (userDB[email]) {
+          alert("This email is already registered! Please use the 'Sign In' tab.");
+          return;
+        }
+        userDB[email] = password;
+        saveUserDB(userDB);
+        alert(`Account successfully registered for ${email}!`);
+        completeLogin(email, false);
+      }
+    }
+
+    function completeLogin(email, isAdmin) {
+      isLoggedIn = true;
+      loggedInUserEmail = email;
+      localStorage.setItem('mm_last_user_email', email);
+      updateAuthUI(email);
+
+      if (isAdmin) {
+        document.getElementById('nav-admin-btn').style.display = 'inline-block';
+        alert("Admin sign in successful!");
+        renderAdminProductsTable();
+        switchView('admin');
+      } else {
+        document.getElementById('nav-admin-btn').style.display = 'none';
+        alert("Sign in successful!");
+        switchView('store');
+      }
+    }
+
+    function handleLogout() {
+      isLoggedIn = false;
+      loggedInUserEmail = "";
+      document.getElementById('nav-admin-btn').style.display = 'none';
+      updateAuthUI();
+      alert("Signed out successfully.");
+      switchView('store');
+    }
+
+    function updateAuthUI(email = "customer@example.com") {
+      const loginBtn = document.getElementById('nav-login-btn');
+      const signOutBtn = document.getElementById('auth-nav-btn');
+      const accountBtn = document.getElementById('nav-account-btn');
+      
+      if (isLoggedIn) {
+        loginBtn.style.display = 'none';
+        signOutBtn.style.display = 'inline-block';
+        accountBtn.style.display = 'inline-block';
+        document.getElementById('account-email').textContent = email;
+        document.getElementById('chk-email').value = email;
+      } else {
+        loginBtn.style.display = 'inline-block';
+        signOutBtn.style.display = 'none';
+        accountBtn.style.display = 'none';
+      }
+    }
+
+    function toggleCart() {
+      document.getElementById('cart-panel').classList.toggle('open');
+    }
+
+    function renderFilters() {
+      const categories = ["All", ...new Set(products.map(p => p.category))];
+      document.getElementById("filters").innerHTML = categories.map(cat =>
+        `<button class="filter ${cat === activeCategory ? "active" : ""}" onclick="filterCategory('${cat}')">${cat}</button>`
+      ).join("");
+    }
+
+    function filterCategory(cat) {
+      activeCategory = cat;
+      renderFilters();
+      renderProducts();
+    }
+
+    function handleSearch(e) {
+      searchQuery = e.target.value.toLowerCase();
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const visible = products.filter(p =>
+        (activeCategory === "All" || p.category === activeCategory) &&
+        `${p.name} ${p.category} ${p.description}`.toLowerCase().includes(searchQuery)
+      );
+      document.getElementById("result-count").textContent = `${visible.length} items`;
+      
+      const grid = document.getElementById("product-grid");
+      if (!visible.length) {
+        grid.innerHTML = '<div class="empty">No products match your search.</div>';
+        return;
+      }
+      
+      grid.innerHTML = visible.map(p => {
+        const isSale = p.salePrice !== null && p.salePrice !== undefined && p.salePrice < p.price && p.salePrice > 0;
+        const finalPrice = getEffectivePrice(p);
+        const discountPct = isSale ? Math.round(((p.price - p.salePrice) / p.price) * 100) : 0;
+
+        return `
+          <article class="card">
+            ${isSale ? `<div class="sale-badge">SAVE ${discountPct}%</div>` : ''}
+            <div class="product-art" style="background:${p.color || '#e9e5ff'}">
+              ${p.image ? `<img class="product-image" src="${p.image}" alt="${p.name}">` : `<span class="product-emoji">${p.emoji || '📦'}</span>`}
+            </div>
+            <div class="card-body">
+              <div class="category">${p.category}</div>
+              <h3 class="product-name">${p.name}</h3>
+              <div class="description">${p.description}</div>
+              <div class="rating">★ ${p.rating || 5} / 5</div>
+              <div class="buy-row">
+                <div class="price-box">
+                  <span class="price ${isSale ? 'on-sale' : ''}">${inr.format(finalPrice)}</span>
+                  ${isSale ? `<span class="original-price">${inr.format(p.price)}</span>` : ''}
+                </div>
+                <div class="action-buttons">
+                  <button class="add-button" onclick="addToCart(${p.id})">Add to cart</button>
+                  <button class="buy-now-button" onclick="buyNow(${p.id})">Buy Now</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function addToCart(id) {
+      cart.set(id, (cart.get(id) || 0) + 1);
+      updateCartUI();
+      toggleCart();
+    }
+
+    function buyNow(id) {
+      directBuyItem = products.find(p => p.id === id);
+      document.getElementById('cart-panel').classList.remove('open');
+      const effPrice = getEffectivePrice(directBuyItem);
+      activeCheckoutAmount = effPrice;
+      
+      document.getElementById('checkout-summary-text').innerHTML = `
+        <strong>Item:</strong> ${directBuyItem.emoji || '📦'} ${directBuyItem.name} <br>
+        <strong>Price:</strong> ${inr.format(effPrice)}
+      `;
+
+      updateDynamicUPIGateway(effPrice, directBuyItem.name);
+      switchView('checkout');
+    }
+
+    function goToCheckout() {
+      if (cart.size === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+      directBuyItem = null;
+      document.getElementById('cart-panel').classList.remove('open');
+
+      const entries = [...cart.entries()];
+      const totalPrice = entries.reduce((sum, [id, qty]) => sum + getEffectivePrice(products.find(p => p.id === id)) * qty, 0);
+      const totalCount = entries.reduce((sum, [, qty]) => sum + qty, 0);
+
+      activeCheckoutAmount = totalPrice;
+
+      document.getElementById('checkout-summary-text').innerHTML = `
+        <strong>Cart Items:</strong> ${totalCount} items <br>
+        <strong>Total Amount:</strong> ${inr.format(totalPrice)}
+      `;
+
+      updateDynamicUPIGateway(totalPrice, "Cart Checkout");
+      switchView('checkout');
+    }
+
+    function updateDynamicUPIGateway(amount, note) {
+      const amtStr = amount.toFixed(2);
+      document.getElementById('upi-display-amount').textContent = amtStr;
+
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(ADMIN_UPI_ID)}&pn=${encodeURIComponent(ADMIN_PAYEE_NAME)}&am=${amtStr}&cu=INR&tn=${encodeURIComponent(note)}`;
+      
+      document.getElementById('dynamic-upi-link').href = upiUrl;
+    }
+
+    function updateCartUI() {
+      const entries = [...cart.entries()];
+      const totalCount = entries.reduce((sum, [, qty]) => sum + qty, 0);
+      const totalPrice = entries.reduce((sum, [id, qty]) => sum + getEffectivePrice(products.find(p => p.id === id)) * qty, 0);
+
+      document.getElementById("cart-count").textContent = totalCount;
+      document.getElementById("cart-total").textContent = inr.format(totalPrice);
+
+      const itemsContainer = document.getElementById("cart-items");
+      itemsContainer.innerHTML = entries.length ? entries.map(([id, qty]) => {
+        const p = products.find(prod => prod.id === id);
+        const effPrice = getEffectivePrice(p);
+        return `<div class="cart-item">
+          <span>${p.emoji || '📦'}</span>
+          <div class="cart-item-name">${p.name}<br><small>${inr.format(effPrice)} × ${qty}</small></div>
+          <button onclick="cart.delete(${id}); updateCartUI();" style="border:0;background:none;color:red;cursor:pointer;">×</button>
+        </div>`;
+      }).join('') : '<p class="muted">Your cart is empty.</p>';
+    }
+
+    function handlePaymentMethodChange(selectEl) {
+      const val = selectEl.value;
+      const bankBox = document.getElementById('admin-bank-container');
+      const cardBox = document.getElementById('admin-card-container');
+      const upiBox = document.getElementById('admin-upi-container');
+
+      bankBox.classList.remove('active');
+      cardBox.classList.remove('active');
+      upiBox.classList.remove('active');
+
+      document.getElementById('chk-bank-ref').removeAttribute('required');
+      document.getElementById('chk-card-num').removeAttribute('required');
+      document.getElementById('chk-card-exp').removeAttribute('required');
+      document.getElementById('chk-card-cvv').removeAttribute('required');
+      document.getElementById('chk-upi-ref').removeAttribute('required');
+
+      if (val === 'Direct Bank Transfer') {
+        bankBox.classList.add('active');
+        document.getElementById('chk-bank-ref').setAttribute('required', 'true');
+      } else if (val === 'Credit/Debit Card') {
+        cardBox.classList.add('active');
+        document.getElementById('chk-card-num').setAttribute('required', 'true');
+        document.getElementById('chk-card-exp').setAttribute('required', 'true');
+        document.getElementById('chk-card-cvv').setAttribute('required', 'true');
+      } else if (val === 'UPI') {
+        upiBox.classList.add('active');
+        document.getElementById('chk-upi-ref').setAttribute('required', 'true');
+      }
+    }
+
+    function handleCheckoutSubmit(e) {
+      e.preventDefault();
+      const orderId = '#ORD-' + Math.floor(1000 + Math.random() * 9000);
+      const customerName = document.getElementById('chk-name').value;
+      const paymentMode = document.getElementById('chk-payment').value;
+      
+      let paymentDetails = paymentMode;
+      if (paymentMode === 'Direct Bank Transfer') {
+        const utr = document.getElementById('chk-bank-ref').value;
+        paymentDetails = `Direct Bank Transfer (A/C: 12340500001234) [UTR: ${utr}]`;
+      } else if (paymentMode === 'Credit/Debit Card') {
+        const cNum = document.getElementById('chk-card-num').value;
+        const masked = '•••• ' + cNum.slice(-4);
+        paymentDetails = `Credit/Debit Card (${masked})`;
+      } else if (paymentMode === 'UPI') {
+        const utr = document.getElementById('chk-upi-ref').value;
+        paymentDetails = `BHIM UPI Quick Pay (${ADMIN_UPI_ID}) [UTR: ${utr}]`;
+      }
+
+      let orderTotal = 0;
+      let summaryText = "";
+
+      if (directBuyItem) {
+        orderTotal = getEffectivePrice(directBuyItem);
+        summaryText = `${directBuyItem.emoji || '📦'} ${directBuyItem.name} (Qty: 1)`;
+        directBuyItem = null;
+      } else {
+        const entries = [...cart.entries()];
+        orderTotal = entries.reduce((sum, [id, qty]) => sum + getEffectivePrice(products.find(p => p.id === id)) * qty, 0);
+        summaryText = entries.map(([id, qty]) => {
+          const p = products.find(prod => prod.id === id);
+          return `${p.emoji || '📦'} ${p.name} x${qty}`;
+        }).join(', ');
+        cart.clear();
+        updateCartUI();
+      }
+
+      orders.unshift({
+        id: orderId,
+        customer: customerName,
+        summary: summaryText,
+        total: orderTotal,
+        payment: paymentDetails,
+        status: "Completed"
+      });
+
+      updateAdminSalesUI();
+      alert(`Order placed successfully! Order ID: ${orderId}\nPayment Mode: ${paymentDetails}`);
+      switchView('store');
+    }
+
+    function renderAdminProductsTable() {
+      const tbody = document.getElementById('admin-products-table');
+      if (!products.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align: center;">No products in store.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = products.map(p => {
+        const isSale = p.salePrice !== null && p.salePrice !== undefined && p.salePrice < p.price && p.salePrice > 0;
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="admin-thumb">
+                  ${p.image ? `<img src="${p.image}" alt="">` : (p.emoji || '📦')}
+                </div>
+                <div>
+                  <strong>${p.name}</strong><br>
+                  <small class="muted">ID: #${p.id}</small>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge">${p.category}</span></td>
+            <td>${inr.format(p.price)}</td>
+            <td>${isSale ? `<strong style="color:var(--sale);">${inr.format(p.salePrice)}</strong>` : '<span class="muted">—</span>'}</td>
+            <td>${isSale ? `<span class="badge" style="background:#ffe4e6; color:#9f1239;">On Sale</span>` : '<span class="badge">Standard</span>'}</td>
+            <td>
+              <button class="btn-edit" onclick="openEditProductModal(${p.id})">Edit</button>
+              <button class="btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openEditProductModal(id) {
+      const p = products.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('modal-title').textContent = 'Edit Product';
+      document.getElementById('edit-prod-id').value = p.id;
+      document.getElementById('edit-prod-name').value = p.name;
+      document.getElementById('edit-prod-category').value = p.category;
+      document.getElementById('edit-prod-emoji').value = p.emoji || '';
+      document.getElementById('edit-prod-image').value = p.image || '';
+      document.getElementById('edit-prod-price').value = p.price;
+      document.getElementById('edit-prod-sale-price').value = (p.salePrice !== null && p.salePrice !== undefined) ? p.salePrice : '';
+      document.getElementById('edit-prod-description').value = p.description || '';
+
+      document.getElementById('product-modal').classList.add('open');
+    }
+
+    function openAddProductModal() {
+      document.getElementById('modal-title').textContent = 'Add New Product';
+      document.getElementById('edit-prod-id').value = '';
+      document.getElementById('product-form').reset();
+      document.getElementById('product-modal').classList.add('open');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.remove('open');
+    }
+
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-prod-id').value;
+      const name = document.getElementById('edit-prod-name').value.trim();
+      const category = document.getElementById('edit-prod-category').value.trim();
+      const emoji = document.getElementById('edit-prod-emoji').value.trim();
+      const image = document.getElementById('edit-prod-image').value.trim();
+      const price = parseFloat(document.getElementById('edit-prod-price').value);
+      const saleVal = document.getElementById('edit-prod-sale-price').value;
+      const salePrice = saleVal !== "" ? parseFloat(saleVal) : null;
+      const description = document.getElementById('edit-prod-description').value.trim();
+
+      if (id) {
+        const prodIndex = products.findIndex(p => p.id === parseInt(id));
+        if (prodIndex !== -1) {
+          products[prodIndex] = {
+            ...products[prodIndex],
+            name, category, emoji, image, price, salePrice, description
+          };
+        }
+      } else {
+        const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push({
+          id: newId,
+          name, category, emoji: emoji || '📦', image,
+          price, salePrice, description,
+          rating: 5.0, color: '#e9e5ff'
+        });
+      }
+
+      closeProductModal();
+      renderFilters();
+      renderProducts();
+      renderAdminProductsTable();
+      alert(id ? "Product updated successfully!" : "Product created successfully!");
+    }
+
+    function deleteProduct(id) {
+      if (confirm("Are you sure you want to delete this product?")) {
+        products = products.filter(p => p.id !== id);
+        renderFilters();
+        renderProducts();
+        renderAdminProductsTable();
+      }
+    }
+
+    function updateAdminSalesUI() {
+      const totalOrders = orders.length;
+      const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+      const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+      document.getElementById('metric-revenue').textContent = inr.format(totalRevenue);
+      document.getElementById('metric-orders').textContent = totalOrders;
+      document.getElementById('metric-aov').textContent = inr.format(aov);
+
+      const tableBody = document.getElementById('admin-orders-table');
+      if (!orders.length) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align: center;">No orders recorded yet.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = orders.map(o => `
+        <tr>
+          <td><strong>${o.id}</strong></td>
+          <td>${o.customer}</td>
+          <td><span style="font-size: 13px; color: var(--muted);">${o.summary}</span></td>
+          <td><strong>${inr.format(o.total)}</strong></td>
+          <td><span style="font-size: 13px;">${o.payment}</span></td>
+          <td><span class="badge completed">${o.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Initialize Application
+    renderFilters();
+    renderProducts();
+    renderAdminProductsTable();
+  </script>
+</body>
+</html>
