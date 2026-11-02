@@ -599,7 +599,7 @@
   <footer>© Manish Marketer · Consolidated Single-Page Application</footer>
 
   <script>
-    let products = [
+    const DEFAULT_PRODUCTS = [
       { id: 1, name: "Wireless Earbuds", category: "Audio", price: 2999, salePrice: 1999, rating: 4.5, emoji: "🎧", image: "", description: "High quality wireless sound with active noise cancellation.", color: "#e9e5ff" },
       { id: 2, name: "Smart Fitness Watch", category: "Wearables", price: 3499, salePrice: 2499, rating: 4.8, emoji: "⌚", image: "", description: "Track your health metrics, steps, and workouts seamlessly.", color: "#e5f8ff" },
       { id: 3, name: "Minimalist Backpack", category: "Accessories", price: 1499, salePrice: null, rating: 4.2, emoji: "🎒", image: "", description: "Durable, water-resistant daily backpack for work or travel.", color: "#fff2e5" },
@@ -608,6 +608,19 @@
       { id: 6, name: "Polarized Sunglasses", category: "Fashion", price: 1199, salePrice: 799, rating: 4.4, emoji: "🕶️", image: "", description: "UV400 protected stylish polarized sunglasses for men & women.", color: "#fef3c7" }
     ];
 
+    function getProductsDB() {
+      const stored = localStorage.getItem('mm_global_products');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+      }
+      return DEFAULT_PRODUCTS;
+    }
+
+    function saveProductsDB(prods) {
+      localStorage.setItem('mm_global_products', JSON.stringify(prods));
+    }
+
+    let products = getProductsDB();
     let activeCategory = "All";
     let searchQuery = "";
     let isLoggedIn = false;
@@ -638,7 +651,6 @@
         : p.price;
     }
 
-    // AUTH GUARD: Require Sign In before Add to Cart or Checkout
     function requireSignIn(actionName = "perform this action") {
       if (!isLoggedIn) {
         alert(`Please sign in to ${actionName}.`);
@@ -1172,19 +1184,24 @@
         });
       }
 
+      // Save globally across storage and refresh all views instantly
+      saveProductsDB(products);
       closeProductModal();
       renderFilters();
       renderProducts();
       renderAdminProductsTable();
-      alert(id ? "Product updated successfully!" : "Product created successfully!");
+      updateCartUI();
+      alert(id ? "Product globally updated successfully!" : "Product globally created successfully!");
     }
 
     function deleteProduct(id) {
-      if (confirm("Are you sure you want to delete this product?")) {
+      if (confirm("Are you sure you want to delete this product globally?")) {
         products = products.filter(p => p.id !== id);
+        saveProductsDB(products);
         renderFilters();
         renderProducts();
         renderAdminProductsTable();
+        updateCartUI();
       }
     }
 
