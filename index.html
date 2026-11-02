@@ -558,7 +558,9 @@
       <p class="muted">Your cart is empty.</p>
     </div>
     <div class="cart-total"><span>Subtotal</span><span id="cart-total">₹0.00</span></div>
-    <button class="checkout-btn" onclick="goToCheckout()">Continue to checkout</button>
+    <div id="cart-checkout-action">
+      <button class="checkout-btn" onclick="goToCheckout()">Continue to checkout</button>
+    </div>
   </aside>
 
   <footer>© Manish Marketer · Consolidated Single-Page Application</footer>
@@ -568,8 +570,6 @@
       { id: 1, name: "Wireless Earbuds", category: "Audio", price: 2999, salePrice: 1999, rating: 4.5, emoji: "🎧", image: "", description: "High quality wireless sound with active noise cancellation.", color: "#e9e5ff" },
       { id: 2, name: "Smart Fitness Watch", category: "Wearables", price: 3499, salePrice: 2499, rating: 4.8, emoji: "⌚", image: "", description: "Track your health metrics, steps, and workouts seamlessly.", color: "#e5f8ff" },
       { id: 3, name: "Minimalist Backpack", category: "Accessories", price: 1499, salePrice: null, rating: 4.2, emoji: "🎒", image: "", description: "Durable, water-resistant daily backpack for work or travel.", color: "#fff2e5" },
-      
-      /* FASHION CATEGORY PRODUCTS */
       { id: 4, name: "Classic Denim Jacket", category: "Fashion", price: 2499, salePrice: 1799, rating: 4.7, emoji: "🧥", image: "", description: "Stylish 100% cotton denim jacket for everyday casual wear.", color: "#e0f2fe" },
       { id: 5, name: "Floral Summer Dress", category: "Fashion", price: 1999, salePrice: 1299, rating: 4.6, emoji: "👗", image: "", description: "Lightweight, breathable floral dress perfect for warm summer days.", color: "#fce7f3" },
       { id: 6, name: "Polarized Sunglasses", category: "Fashion", price: 1199, salePrice: 799, rating: 4.4, emoji: "🕶️", image: "", description: "UV400 protected stylish polarized sunglasses for men & women.", color: "#fef3c7" }
@@ -605,7 +605,24 @@
         : p.price;
     }
 
+    // AUTH GUARD: Require Sign In before Add to Cart or Checkout
+    function requireSignIn(actionName = "perform this action") {
+      if (!isLoggedIn) {
+        alert(`Please sign in to ${actionName}.`);
+        switchView('login');
+        return false;
+      }
+      return true;
+    }
+
     function switchView(viewName) {
+      // Guard checkout view specifically
+      if (viewName === 'checkout' && !isLoggedIn) {
+        alert("Please sign in to proceed to checkout.");
+        switchView('login');
+        return;
+      }
+
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
       document.getElementById('view-' + viewName).classList.add('active-view');
       
@@ -703,6 +720,8 @@
     function handleLogout() {
       isLoggedIn = false;
       loggedInUserEmail = "";
+      cart.clear(); // Clear active cart on logout
+      updateCartUI();
       
       localStorage.removeItem('mm_active_session_email');
 
@@ -716,6 +735,7 @@
       const loginBtn = document.getElementById('nav-login-btn');
       const signOutBtn = document.getElementById('auth-nav-btn');
       const accountBtn = document.getElementById('nav-account-btn');
+      const actionBox = document.getElementById('cart-checkout-action');
       
       if (isLoggedIn) {
         loginBtn.style.display = 'none';
@@ -723,10 +743,12 @@
         accountBtn.style.display = 'inline-block';
         document.getElementById('account-email').textContent = email;
         document.getElementById('chk-email').value = email;
+        actionBox.innerHTML = `<button class="checkout-btn" onclick="goToCheckout()">Continue to checkout</button>`;
       } else {
         loginBtn.style.display = 'inline-block';
         signOutBtn.style.display = 'none';
         accountBtn.style.display = 'none';
+        actionBox.innerHTML = `<button class="checkout-btn" style="background:#0073e6;" onclick="switchView('login')">Sign in to checkout</button>`;
       }
     }
 
@@ -812,8 +834,11 @@
     }
 
     function addToCart(id) {
+      // Require Sign In first
+      if (!requireSignIn("add items to your cart")) return;
+
       const input = prompt("Enter quantity:", "1");
-      if (input === null) return; // Cancelled
+      if (input === null) return;
       const qty = parseInt(input);
       if (isNaN(qty) || qty <= 0) {
         alert("Please enter a valid positive quantity.");
@@ -825,6 +850,9 @@
     }
 
     function buyNow(id) {
+      // Require Sign In first
+      if (!requireSignIn("buy products")) return;
+
       directBuyItem = products.find(p => p.id === id);
       document.getElementById('cart-panel').classList.remove('open');
       const effPrice = getEffectivePrice(directBuyItem);
@@ -840,6 +868,9 @@
     }
 
     function goToCheckout() {
+      // Require Sign In first
+      if (!requireSignIn("checkout")) return;
+
       if (cart.size === 0) {
         alert("Your cart is empty!");
         return;
@@ -923,6 +954,14 @@
 
     function handleCheckoutSubmit(e) {
       e.preventDefault();
+      
+      // Safety guard check
+      if (!isLoggedIn) {
+        alert("Please sign in to complete your order.");
+        switchView('login');
+        return;
+      }
+
       const orderId = '#ORD-' + Math.floor(1000 + Math.random() * 9000);
       const customerName = document.getElementById('chk-name').value;
       const paymentMode = document.getElementById('chk-payment').value;
