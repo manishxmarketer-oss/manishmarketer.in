@@ -276,7 +276,6 @@
       <button type="submit">Search</button>
     </form>
     <div class="nav-links">
-      <button class="nav-btn" onclick="switchView('store')">Store</button>
       <button class="nav-btn" id="nav-account-btn" style="display: none;" onclick="switchView('account')">Account</button>
       <button class="nav-btn" id="nav-admin-btn" style="display: none;" onclick="switchView('admin')">Admin</button>
       <button class="nav-btn" id="nav-login-btn" onclick="switchView('login')">Sign In</button>
@@ -678,7 +677,6 @@
       isLoggedIn = true;
       loggedInUserEmail = email;
       
-      // Persist session across page reloads & exits
       localStorage.setItem('mm_active_session_email', email);
       localStorage.setItem('mm_last_user_email', email);
 
@@ -700,7 +698,6 @@
       isLoggedIn = false;
       loggedInUserEmail = "";
       
-      // Clear persistent session on explicit sign out
       localStorage.removeItem('mm_active_session_email');
 
       document.getElementById('nav-admin-btn').style.display = 'none';
@@ -727,7 +724,6 @@
       }
     }
 
-    // Check Persistent Session on Page Load
     function checkExistingSession() {
       const activeSessionEmail = localStorage.getItem('mm_active_session_email');
       if (activeSessionEmail) {
