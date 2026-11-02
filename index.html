@@ -159,6 +159,30 @@
     input, textarea, select { border: 1px solid #cbd3df; border-radius: 7px; color: var(--ink); font: inherit; padding: 10px; width: 100%; }
     textarea { resize: vertical; }
 
+    .image-preview-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .image-preview-box {
+      width: 60px;
+      height: 60px;
+      border: 1px dashed #cbd3df;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      overflow: hidden;
+      font-size: 24px;
+    }
+    .image-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     /* CUSTOM UPI QUICK PAY STYLES */
     .upi-payment-card {
       background: #ffffff;
@@ -519,12 +543,21 @@
           </div>
           <div>
             <label>Emoji Symbol</label>
-            <input type="text" id="edit-prod-emoji" placeholder="e.g. 🧥">
+            <input type="text" id="edit-prod-emoji" placeholder="e.g. 🧥" oninput="updateImagePreview()">
           </div>
         </div>
 
-        <label>Image URL (Optional - overrides Emoji)</label>
-        <input type="url" id="edit-prod-image" placeholder="https://example.com/photo.jpg">
+        <label>Upload Image from Device</label>
+        <input type="file" id="edit-prod-file" accept="image/*" onchange="handleFileUpload(event)">
+        
+        <label>Or External Image URL</label>
+        <input type="url" id="edit-prod-image" placeholder="https://example.com/photo.jpg" oninput="updateImagePreview()">
+        <input type="hidden" id="edit-prod-image-base64">
+
+        <div class="image-preview-container">
+          <div class="image-preview-box" id="modal-img-preview-box">📦</div>
+          <span class="muted" style="font-size: 12px;" id="modal-img-preview-label">Image Preview</span>
+        </div>
 
         <div class="form-row">
           <div>
@@ -616,7 +649,6 @@
     }
 
     function switchView(viewName) {
-      // Guard checkout view specifically
       if (viewName === 'checkout' && !isLoggedIn) {
         alert("Please sign in to proceed to checkout.");
         switchView('login');
@@ -720,7 +752,7 @@
     function handleLogout() {
       isLoggedIn = false;
       loggedInUserEmail = "";
-      cart.clear(); // Clear active cart on logout
+      cart.clear();
       updateCartUI();
       
       localStorage.removeItem('mm_active_session_email');
@@ -834,7 +866,6 @@
     }
 
     function addToCart(id) {
-      // Require Sign In first
       if (!requireSignIn("add items to your cart")) return;
 
       const input = prompt("Enter quantity:", "1");
@@ -850,7 +881,6 @@
     }
 
     function buyNow(id) {
-      // Require Sign In first
       if (!requireSignIn("buy products")) return;
 
       directBuyItem = products.find(p => p.id === id);
@@ -868,7 +898,6 @@
     }
 
     function goToCheckout() {
-      // Require Sign In first
       if (!requireSignIn("checkout")) return;
 
       if (cart.size === 0) {
@@ -955,7 +984,6 @@
     function handleCheckoutSubmit(e) {
       e.preventDefault();
       
-      // Safety guard check
       if (!isLoggedIn) {
         alert("Please sign in to complete your order.");
         switchView('login');
@@ -1046,6 +1074,37 @@
       }).join('');
     }
 
+    // DEVICE FILE UPLOAD & PREVIEW HANDLERS
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const base64Src = evt.target.result;
+          document.getElementById('edit-prod-image-base64').value = base64Src;
+          updateImagePreview(base64Src);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function updateImagePreview(customSrc = null) {
+      const previewBox = document.getElementById('modal-img-preview-box');
+      const base64Val = document.getElementById('edit-prod-image-base64').value;
+      const urlVal = document.getElementById('edit-prod-image').value.trim();
+      const emojiVal = document.getElementById('edit-prod-emoji').value.trim();
+
+      const imgSrc = customSrc || base64Val || urlVal;
+
+      if (imgSrc) {
+        previewBox.innerHTML = `<img src="${imgSrc}" alt="Preview">`;
+      } else if (emojiVal) {
+        previewBox.innerHTML = emojiVal;
+      } else {
+        previewBox.innerHTML = '📦';
+      }
+    }
+
     function openEditProductModal(id) {
       const p = products.find(item => item.id === id);
       if (!p) return;
@@ -1055,18 +1114,23 @@
       document.getElementById('edit-prod-name').value = p.name;
       document.getElementById('edit-prod-category').value = p.category;
       document.getElementById('edit-prod-emoji').value = p.emoji || '';
-      document.getElementById('edit-prod-image').value = p.image || '';
+      document.getElementById('edit-prod-file').value = '';
+      document.getElementById('edit-prod-image').value = p.image && !p.image.startsWith('data:') ? p.image : '';
+      document.getElementById('edit-prod-image-base64').value = p.image && p.image.startsWith('data:') ? p.image : '';
       document.getElementById('edit-prod-price').value = p.price;
       document.getElementById('edit-prod-sale-price').value = (p.salePrice !== null && p.salePrice !== undefined) ? p.salePrice : '';
       document.getElementById('edit-prod-description').value = p.description || '';
 
+      updateImagePreview();
       document.getElementById('product-modal').classList.add('open');
     }
 
     function openAddProductModal() {
       document.getElementById('modal-title').textContent = 'Add New Product';
       document.getElementById('edit-prod-id').value = '';
+      document.getElementById('edit-prod-image-base64').value = '';
       document.getElementById('product-form').reset();
+      updateImagePreview();
       document.getElementById('product-modal').classList.add('open');
     }
 
@@ -1080,7 +1144,11 @@
       const name = document.getElementById('edit-prod-name').value.trim();
       const category = document.getElementById('edit-prod-category').value.trim();
       const emoji = document.getElementById('edit-prod-emoji').value.trim();
-      const image = document.getElementById('edit-prod-image').value.trim();
+      
+      const uploadedBase64 = document.getElementById('edit-prod-image-base64').value;
+      const urlVal = document.getElementById('edit-prod-image').value.trim();
+      const image = uploadedBase64 || urlVal;
+
       const price = parseFloat(document.getElementById('edit-prod-price').value);
       const saleVal = document.getElementById('edit-prod-sale-price').value;
       const salePrice = saleVal !== "" ? parseFloat(saleVal) : null;
